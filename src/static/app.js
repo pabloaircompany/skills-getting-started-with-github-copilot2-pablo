@@ -69,19 +69,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         activityCard.querySelectorAll(".remove-participant").forEach((button) => {
           button.addEventListener("click", async () => {
-            const response = await fetch(
-              `/activities/${encodeURIComponent(button.dataset.activity)}/participants?email=${encodeURIComponent(button.dataset.email)}`,
-              { method: "DELETE" }
-            );
+            try {
+              const response = await fetch(
+                `/activities/${encodeURIComponent(button.dataset.activity)}/participants?email=${encodeURIComponent(button.dataset.email)}`,
+                { method: "DELETE" }
+              );
 
-            const result = await response.json();
-            messageDiv.textContent = result.message || result.detail;
-            messageDiv.className = response.ok ? "success" : "error";
-            messageDiv.classList.remove("hidden");
+              const result = await response.json();
+              messageDiv.textContent = result.message || result.detail || "An error occurred";
+              messageDiv.className = response.ok ? "success" : "error";
+              messageDiv.classList.remove("hidden");
 
-            if (response.ok) {
-              activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
-              fetchActivities();
+              if (response.ok) {
+                activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
+                await fetchActivities();
+              }
+            } catch (error) {
+              messageDiv.textContent = "Failed to remove participant. Please try again.";
+              messageDiv.className = "error";
+              messageDiv.classList.remove("hidden");
+              console.error("Error removing participant:", error);
             }
           });
         });
