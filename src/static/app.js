@@ -19,15 +19,54 @@ document.addEventListener("DOMContentLoaded", () => {
         activityCard.className = "activity-card";
 
         const spotsLeft = details.max_participants - details.participants.length;
+        const participants = details.participants
+          .map(
+            (participant) => `
+              <li>
+                <span>${participant}</span>
+                <button
+                  class="remove-participant"
+                  type="button"
+                  data-activity="${name}"
+                  data-email="${participant}"
+                  aria-label="Remove ${participant} from ${name}"
+                  title="Remove participant"
+                >&times;</button>
+              </li>`
+          )
+          .join("");
 
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <div class="participants">
+            <strong>Participants</strong>
+            <ul>${participants}</ul>
+          </div>
         `;
 
         activitiesList.appendChild(activityCard);
+
+        activityCard.querySelectorAll(".remove-participant").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const response = await fetch(
+              `/activities/${encodeURIComponent(button.dataset.activity)}/participants?email=${encodeURIComponent(button.dataset.email)}`,
+              { method: "DELETE" }
+            );
+
+            const result = await response.json();
+            messageDiv.textContent = result.message || result.detail;
+            messageDiv.className = response.ok ? "success" : "error";
+            messageDiv.classList.remove("hidden");
+
+            if (response.ok) {
+              activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
+              fetchActivities();
+            }
+          });
+        });
 
         // Add option to select dropdown
         const option = document.createElement("option");
