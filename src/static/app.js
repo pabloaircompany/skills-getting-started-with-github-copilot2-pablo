@@ -119,6 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
         await fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
