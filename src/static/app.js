@@ -19,33 +19,51 @@ document.addEventListener("DOMContentLoaded", () => {
         activityCard.className = "activity-card";
 
         const spotsLeft = details.max_participants - details.participants.length;
-        const participants = details.participants
-          .map(
-            (participant) => `
-              <li>
-                <span>${participant}</span>
-                <button
-                  class="remove-participant"
-                  type="button"
-                  data-activity="${name}"
-                  data-email="${participant}"
-                  aria-label="Remove ${participant} from ${name}"
-                  title="Remove participant"
-                >&times;</button>
-              </li>`
-          )
-          .join("");
+        const title = document.createElement("h4");
+        title.textContent = name;
 
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-          <div class="participants">
-            <strong>Participants</strong>
-            <ul>${participants}</ul>
-          </div>
-        `;
+        const description = document.createElement("p");
+        description.textContent = details.description;
+
+        const schedule = document.createElement("p");
+        const scheduleLabel = document.createElement("strong");
+        scheduleLabel.textContent = "Schedule:";
+        schedule.appendChild(scheduleLabel);
+        schedule.append(` ${details.schedule}`);
+
+        const availability = document.createElement("p");
+        const availabilityLabel = document.createElement("strong");
+        availabilityLabel.textContent = "Availability:";
+        availability.appendChild(availabilityLabel);
+        availability.append(` ${spotsLeft} spots left`);
+
+        const participantsContainer = document.createElement("div");
+        participantsContainer.className = "participants";
+
+        const participantsLabel = document.createElement("strong");
+        participantsLabel.textContent = "Participants";
+
+        const participantsList = document.createElement("ul");
+        details.participants.forEach((participant) => {
+          const participantItem = document.createElement("li");
+          const participantName = document.createElement("span");
+          participantName.textContent = participant;
+
+          const removeButton = document.createElement("button");
+          removeButton.className = "remove-participant";
+          removeButton.type = "button";
+          removeButton.dataset.activity = name;
+          removeButton.dataset.email = participant;
+          removeButton.setAttribute("aria-label", `Remove ${participant} from ${name}`);
+          removeButton.title = "Remove participant";
+          removeButton.textContent = "×";
+
+          participantItem.append(participantName, removeButton);
+          participantsList.appendChild(participantItem);
+        });
+
+        participantsContainer.append(participantsLabel, participantsList);
+        activityCard.append(title, description, schedule, availability, participantsContainer);
 
         activitiesList.appendChild(activityCard);
 
